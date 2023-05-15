@@ -41,11 +41,13 @@ async function run() {
       '--use'
     ]);
 
-    core.info("🏃 Booting builder...");
-    await exec.exec("docker", ["buildx", "inspect", "--bootstrap"]);
+    // core.info("🏃 Booting builder...");
+    // await exec.exec("docker", ["buildx", "inspect", "--bootstrap"]);
 
-    core.info("🐳 Docker info");
-    await exec.exec("docker", ["info"]);
+    // core.info("🐳 Docker info");
+    // await exec.exec("docker", ["info"]);
+    core.info('Docker Login');
+    await exec.exec(`AWS_ACCESS_KEY_ID=${core.getInput('access_key_id')} AWS_SECRET_ACCESS_KEY=${core.getInput('access_key_id')} AWS_DEFAULT_REGION=${core.getInput('region')} aws ecr get-login-password --region ${core.getInput('region')} | docker login --username AWS --password-stdin ${core.getInput('account_id')}.dkr.ecr.${core.getInput('region')}.amazonaws.com`)
     core.info("Docker build");
     const inputDockerfile = core.getInput("dockerfile");
     const platform = core.getInput("platform");
@@ -68,10 +70,8 @@ async function run() {
       extraBuildArgs = `${extraBuildArgs} --platform ${platform}`;
     }
     const dockerCmd = `docker buildx build ${extraBuildArgs} -f ${inputDockerfile} ${dockerTagArgs} ${inputPath}`;
-    core.info(`Running: ${dockerCmd}`);
+    core.info(`CMD: ${dockerCmd}`);
     await exec.exec(dockerCmd);
-    core.info('Docker Login');
-    await exec.exec(`AWS_ACCESS_KEY_ID=${core.getInput('access_key_id')} AWS_SECRET_ACCESS_KEY=${core.getInput('access_key_id')} AWS_DEFAULT_REGION=${core.getInput('region')} aws ecr get-login-password --region ${core.getInput('region')} | docker login --username AWS --password-stdin ${core.getInput('account_id')}.dkr.ecr.${core.getInput('region')}.amazonaws.com`)
     for(const tag of dockerTags) {
       core.info(`Pushing ${accountUrl}/${repo}:${tag}`);
       await exec.exec('docker', ['push', `${accountUrl}/${repo}:${tag}`])
