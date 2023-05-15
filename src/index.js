@@ -16,6 +16,30 @@ async function run() {
     await exec.exec("docker", ["buildx", "version"]);
 
     core.info(`⬇️ Downloading qemu-user-static Docker image...`);
+    const qemuVer = core.getInput('qemu-version') || 'latest';
+    await exec.exec('docker', ['pull', '-q', `multiarch/qemu-user-static:${qemuVer}`]);
+    core.info(`💎 Installing QEMU static binaries...`);
+    await exec.exec('docker', [
+      'run',
+      '--rm',
+      '--privileged',
+      `multiarch/qemu-user-static:${qemuVer}`,
+      '--reset',
+      '-p',
+      'yes',
+      '--credential',
+      'yes'
+    ]);
+    core.info('🔨 Creating a new builder instance...');
+    await exec.exec('docker', [
+      'buildx',
+      'create',
+      '--name',
+      `builder-${process.env.GITHUB_SHA}`,
+      '--driver',
+      'docker-container',
+      '--use'
+    ]);
 
     core.info("🏃 Booting builder...");
     await exec.exec("docker", ["buildx", "inspect", "--bootstrap"]);
@@ -50,7 +74,20 @@ async function run() {
     core.setFailed(error.message);
   }
 }
+async function cleanup() {
+  try {
+    core.info('🚿 Removing builder instance...');
+    await exec.exec('docker', ['buildx', 'rm', `builder-${process.env.GITHUB_SHA}`]);
+  } catch (error) {
+    core.warning(error.message);
+  }
+}
 
+// Main
 if (!stateHelper.IsPost) {
   run();
+}
+// Post
+else {
+  cleanup();
 }
