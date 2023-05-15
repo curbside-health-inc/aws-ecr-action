@@ -70,6 +70,12 @@ async function run() {
     const dockerCmd = `docker buildx build ${extraBuildArgs} -f ${inputDockerfile} ${dockerTagArgs} ${inputPath}`;
     core.info(`Running: ${dockerCmd}`);
     await exec.exec(dockerCmd);
+    core.info('Docker Login');
+    await exec.exec(`AWS_ACCESS_KEY_ID=${core.getInput('access_key_id')} AWS_SECRET_ACCESS_KEY=${core.getInput('access_key_id')} AWS_DEFAULT_REGION=${core.getInput('region')} aws ecr get-login-password --region ${core.getInput('region')} | docker login --username AWS --password-stdin ${core.getInput('account_id')}.dkr.ecr.${core.getInput('region')}.amazonaws.com`)
+    for(const tag of dockerTags) {
+      core.info(`Pushing ${accountUrl}/${repo}:${tag}`);
+      await exec.exec('docker', ['push', `${accountUrl}/${repo}:${tag}`])
+    }
   } catch (error) {
     core.setFailed(error.message);
   }
