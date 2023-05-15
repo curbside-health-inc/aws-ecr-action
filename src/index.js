@@ -26,16 +26,6 @@ async function run() {
     const inputDockerfile = core.getInput("dockerfile");
     const platform = core.getInput("platform");
     const inputPath = core.getInput("path") || ".";
-    await core.exec("docker", [
-      "buildx",
-      "build",
-      "-f",
-      inputDockerfile,
-      "--platform",
-      platform,
-      "test",
-      path,
-    ]);
     let dockerTagArgs = "";
     const dockerTags = core.getInput("tags").split(",");
     const accountUrl = `${core.getInput("account_id")}.dkr.ecr.${core.getInput(
