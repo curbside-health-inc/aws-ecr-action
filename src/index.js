@@ -67,7 +67,7 @@ async function run() {
     if (platform) {
       extraBuildArgs = `${extraBuildArgs} --platform ${platform}`;
     }
-    const dockerCmd = `docker build buildx ${extraBuildArgs} -f ${inputDockerfile} ${dockerTagArgs} ${inputPath}`;
+    const dockerCmd = `docker buildx build ${extraBuildArgs} -f ${inputDockerfile} ${dockerTagArgs} ${inputPath}`;
     core.info(`Running: ${dockerCmd}`);
     await exec.exec(dockerCmd);
   } catch (error) {
