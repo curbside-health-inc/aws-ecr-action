@@ -47,7 +47,10 @@ async function run() {
     // core.info("🐳 Docker info");
     // await exec.exec("docker", ["info"]);
     core.info('Docker Login');
-    await exec.exec(`AWS_ACCESS_KEY_ID=${core.getInput('access_key_id')} AWS_SECRET_ACCESS_KEY=${core.getInput('access_key_id')} AWS_DEFAULT_REGION=${core.getInput('region')} aws ecr get-login-password --region ${core.getInput('region')} | docker login --username AWS --password-stdin ${core.getInput('account_id')}.dkr.ecr.${core.getInput('region')}.amazonaws.com`)
+    process.env.AWS_ACCESS_KEY_ID = core.getInput('access_key_id');
+    process.env.AWS_SECRET_ACCESS_KEY = core.getInput('secret_access_key');
+    process.env.AWS_DEFAULT_REGION = core.getInput('region');
+    await exec.exec(`aws ecr get-login-password --region ${core.getInput('region')} | docker login --username AWS --password-stdin ${core.getInput('account_id')}.dkr.ecr.${core.getInput('region')}.amazonaws.com`)
     core.info("Docker build");
     const inputDockerfile = core.getInput("dockerfile");
     const platform = core.getInput("platform");
