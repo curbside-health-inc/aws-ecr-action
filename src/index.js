@@ -4,7 +4,6 @@ const os = require("os");
 const installer = require("./installer");
 const path = require("path");
 async function run() {
-
   try {
     const buildxVer = core.getInput("buildx-version") || "latest";
     const dockerConfigHome =
