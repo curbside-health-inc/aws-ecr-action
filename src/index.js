@@ -71,14 +71,14 @@ async function run() {
     if (platform) {
       extraBuildArgs = `${extraBuildArgs} --platform ${platform}`;
     }
-    const dockerCmd = `docker buildx build ${extraBuildArgs} -f ${inputDockerfile} ${dockerTagArgs} ${inputPath}`;
+    const dockerCmd = `docker buildx build ${extraBuildArgs} -f ${inputDockerfile} ${dockerTagArgs} --output "type=image,push=true" ${inputPath}`;
     core.info(`CMD: ${dockerCmd}`);
     await exec.exec(dockerCmd);
-    for(const tag of dockerTags) {
-      core.info(`Pushing ${tag}`);
-      // await exec.exec('docker', ['tag', `${repo}:latest`, tag])
-      await exec.exec('docker', ['push', tag])
-    }
+    // for(const tag of dockerTags) {
+    //   core.info(`Pushing ${tag}`);
+    //   // await exec.exec('docker', ['tag', `${repo}:latest`, tag])
+    //   await exec.exec('docker', ['push', tag])
+    // }
   } catch (error) {
     core.setFailed(error.message);
   }
