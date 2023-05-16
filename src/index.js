@@ -78,6 +78,7 @@ async function run() {
     await exec.exec(dockerCmd);
     for(const tag of dockerTags) {
       core.info(`Pushing ${accountUrl}/${repo}:${tag}`);
+      await exec.exec('docker', ['tag', `${accountUrl}/${repo}:${tag}`])
       await exec.exec('docker', ['push', `${accountUrl}/${repo}:${tag}`])
     }
   } catch (error) {
