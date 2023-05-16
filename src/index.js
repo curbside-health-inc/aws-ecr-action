@@ -1,16 +1,16 @@
 const core = require("@actions/core");
 const exec = require("@actions/exec");
-// const os = require("os");
-// const installer = require("./installer");
-// const path = require("path");
+const os = require("os");
+const installer = require("./installer");
+const path = require("path");
 // const stateHelper = require("./state-helper");
 
 async function run() {
   try {
-    // const buildxVer = core.getInput("buildx-version") || "latest";
-    // const dockerConfigHome =
-    //   process.env.DOCKER_CONFIG || path.join(os.homedir(), ".docker");
-    // await installer.buildx(buildxVer, dockerConfigHome);
+    const buildxVer = core.getInput("buildx-version") || "latest";
+    const dockerConfigHome =
+      process.env.DOCKER_CONFIG || path.join(os.homedir(), ".docker");
+    await installer.buildx(buildxVer, dockerConfigHome);
 
     // core.info("📣 Buildx info");
     // await exec.exec("docker", ["buildx", "version"]);
