@@ -1,45 +1,45 @@
 const core = require("@actions/core");
 const exec = require("@actions/exec");
-const os = require("os");
-const installer = require("./installer");
-const path = require("path");
-const stateHelper = require("./state-helper");
+// const os = require("os");
+// const installer = require("./installer");
+// const path = require("path");
+// const stateHelper = require("./state-helper");
 
 async function run() {
   try {
-    const buildxVer = core.getInput("buildx-version") || "latest";
-    const dockerConfigHome =
-      process.env.DOCKER_CONFIG || path.join(os.homedir(), ".docker");
-    await installer.buildx(buildxVer, dockerConfigHome);
+    // const buildxVer = core.getInput("buildx-version") || "latest";
+    // const dockerConfigHome =
+    //   process.env.DOCKER_CONFIG || path.join(os.homedir(), ".docker");
+    // await installer.buildx(buildxVer, dockerConfigHome);
 
-    core.info("📣 Buildx info");
-    await exec.exec("docker", ["buildx", "version"]);
+    // core.info("📣 Buildx info");
+    // await exec.exec("docker", ["buildx", "version"]);
 
-    core.info(`⬇️ Downloading qemu-user-static Docker image...`);
-    const qemuVer = core.getInput('qemu-version') || 'latest';
-    await exec.exec('docker', ['pull', '-q', `multiarch/qemu-user-static:${qemuVer}`]);
-    core.info(`💎 Installing QEMU static binaries...`);
-    await exec.exec('docker', [
-      'run',
-      '--rm',
-      '--privileged',
-      `multiarch/qemu-user-static:${qemuVer}`,
-      '--reset',
-      '-p',
-      'yes',
-      '--credential',
-      'yes'
-    ]);
-    core.info('🔨 Creating a new builder instance...');
-    await exec.exec('docker', [
-      'buildx',
-      'create',
-      '--name',
-      `builder-${process.env.GITHUB_SHA}`,
-      '--driver',
-      'docker-container',
-      '--use'
-    ]);
+    // core.info(`⬇️ Downloading qemu-user-static Docker image...`);
+    // const qemuVer = core.getInput('qemu-version') || 'latest';
+    // await exec.exec('docker', ['pull', '-q', `multiarch/qemu-user-static:${qemuVer}`]);
+    // core.info(`💎 Installing QEMU static binaries...`);
+    // await exec.exec('docker', [
+    //   'run',
+    //   '--rm',
+    //   '--privileged',
+    //   `multiarch/qemu-user-static:${qemuVer}`,
+    //   '--reset',
+    //   '-p',
+    //   'yes',
+    //   '--credential',
+    //   'yes'
+    // ]);
+    // core.info('🔨 Creating a new builder instance...');
+    // await exec.exec('docker', [
+    //   'buildx',
+    //   'create',
+    //   '--name',
+    //   `builder-${process.env.GITHUB_SHA}`,
+    //   '--driver',
+    //   'docker-container',
+    //   '--use'
+    // ]);
 
     // core.info("🏃 Booting builder...");
     // await exec.exec("docker", ["buildx", "inspect", "--bootstrap"]);
@@ -61,8 +61,9 @@ async function run() {
       "region"
     )}.amazonaws.com`;
     const repo = core.getInput("repo");
+    dockerTags = dockerTags.map((tag) => `${accountUrl}/${repo}:${tag.trim()}`)
     dockerTags.forEach((tag) => {
-      dockerTagArgs = `${dockerTagArgs} -t ${accountUrl}/${repo}:${tag}`;
+      dockerTagArgs = `${dockerTagArgs} -t ${tag}`;
     });
     const cacheFrom = core.getInput("cache_from");
     let extraBuildArgs = core.getInput("extra_build_args");
@@ -77,27 +78,27 @@ async function run() {
     core.info(`CMD: ${dockerCmd}`);
     await exec.exec(dockerCmd);
     for(const tag of dockerTags) {
-      core.info(`Pushing ${accountUrl}/${repo}:${tag}`);
-      await exec.exec('docker', ['push', `${accountUrl}/${repo}:${tag}`])
+      core.info(`Pushing ${tag}`);
+      await exec.exec('docker', ['push', tag])
     }
   } catch (error) {
     core.setFailed(error.message);
   }
 }
-async function cleanup() {
-  try {
-    core.info('🚿 Removing builder instance...');
-    await exec.exec('docker', ['buildx', 'rm', `builder-${process.env.GITHUB_SHA}`]);
-  } catch (error) {
-    core.warning(error.message);
-  }
-}
+// async function cleanup() {
+//   try {
+//     core.info('🚿 Removing builder instance...');
+//     await exec.exec('docker', ['buildx', 'rm', `builder-${process.env.GITHUB_SHA}`]);
+//   } catch (error) {
+//     core.warning(error.message);
+//   }
+// }
 
 // Main
-if (!stateHelper.IsPost) {
-  run();
-}
+// if (!stateHelper.IsPost) {
+run();
+// }
 // Post
-else {
-  cleanup();
-}
+// else {
+//   cleanup();
+// }
