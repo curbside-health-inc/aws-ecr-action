@@ -54,12 +54,12 @@ async function run() {
     const inputDockerfile = core.getInput("dockerfile");
     const platform = core.getInput("platform");
     const inputPath = core.getInput("path") || ".";
-    let dockerTagArgs = "";
     const accountUrl = `${core.getInput("account_id")}.dkr.ecr.${core.getInput(
       "region"
     )}.amazonaws.com`;
     const repo = core.getInput("repo");
     const dockerTags = core.getInput("tags").split(",").map((tag) => `${accountUrl}/${repo}:${tag.trim()}`);
+    let dockerTagArgs = "";
     dockerTags.forEach((tag) => {
       dockerTagArgs = `${dockerTagArgs} -t ${tag}`;
     });
@@ -77,7 +77,7 @@ async function run() {
     await exec.exec(dockerCmd);
     for(const tag of dockerTags) {
       core.info(`Pushing ${tag}`);
-      await exec.exec('docker', ['tag', `${repo}:latest`, tag])
+      // await exec.exec('docker', ['tag', `${repo}:latest`, tag])
       await exec.exec('docker', ['push', tag])
     }
   } catch (error) {
