@@ -1,5 +1,5 @@
 name: AWS ECR
-author: Lee Sun-Hyoup <kciter@naver.com>, Pablo Castillo <pablo@castillo.is>
+author: Talal Arshad (talal7860@gmail.com)
 branding:
   icon: upload-cloud
   color: orange
@@ -66,5 +66,6 @@ outputs:
   image:
     description: 'The created image name'
 runs:
-  using: docker
-  image: Dockerfile
+  using: node16
+  main: src/index.js
+  post: src/cleanup.js
