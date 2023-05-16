@@ -67,8 +67,8 @@ async function run() {
     const cacheFrom = core.getInput("cache_from");
     let extraBuildArgs = core.getInput("extra_build_args");
     if (cacheFrom) {
-      dockerTagArgs = `${extraBuildArgs} --cache-from ${accountUrl}/${repo}:${cacheFrom}`;
-      await exec.exec('docker', ['pull', `${accountUrl}/${repo}:${cacheFrom}`]);
+      dockerTagArgs = `${extraBuildArgs} --cache-from ${cacheFrom}`;
+      await exec.exec('docker', ['pull', cacheFrom]);
     }
     if (platform) {
       extraBuildArgs = `${extraBuildArgs} --platform ${platform}`;
